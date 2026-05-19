@@ -30,6 +30,8 @@ pipeline {
                     export DB_USER
                     export DB_PASS
 
+                    sed -i 's/\r$//' deploy.sh
+
                     chmod +x deploy.sh
                     ./deploy.sh
                     '''
