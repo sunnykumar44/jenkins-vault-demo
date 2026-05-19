@@ -26,9 +26,13 @@ pipeline {
 
                     DB_USER=$(vault kv get -field=username secret/db)
                     DB_PASS=$(vault kv get -field=password secret/db)
+                    DB_HOST=$(vault kv get -field=host secret/db)
+                    DB_NAME=$(vault kv get -field=database secret/db)
 
                     export DB_USER
                     export DB_PASS
+                    export DB_HOST
+                    export DB_NAME
 
                     sed -i 's/\r$//' deploy.sh
 
