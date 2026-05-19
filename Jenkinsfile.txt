@@ -3,10 +3,18 @@ pipeline {
 
     stages {
 
-        stage('Clone & Execute') {
+        stage('Fetch Secrets') {
             steps {
 
                 sh '''
+                export VAULT_ADDR=https://pronteff-vault.com:8200
+
+                DB_USER=$(vault kv get -field=username secret/db)
+                DB_PASS=$(vault kv get -field=password secret/db)
+
+                export DB_USER
+                export DB_PASS
+
                 chmod +x deploy.sh
                 ./deploy.sh
                 '''
