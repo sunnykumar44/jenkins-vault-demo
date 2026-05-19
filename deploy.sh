@@ -2,11 +2,11 @@
 
 echo "Starting deployment..."
 
-echo "DB USER: $DB_USER"
+echo "Connecting to MariaDB..."
 
-echo "Connecting to database..."
+mysql -h "$DB_HOST" \
+-u "$DB_USER" \
+-p"$DB_PASS" \
+-e "SHOW DATABASES;"
 
-# Example DB connection
-# mysql -h localhost -u $DB_USER -p$DB_PASS
-
-echo "Deployment completed successfully."
+echo "Database connection successful."
