@@ -8,6 +8,7 @@ pipeline {
 
                 sh '''
                 export VAULT_ADDR=https://pronteff-vault.com:8200
+                export VAULT_SKIP_VERIFY=true
 
                 DB_USER=$(vault kv get -field=username secret/db)
                 DB_PASS=$(vault kv get -field=password secret/db)
