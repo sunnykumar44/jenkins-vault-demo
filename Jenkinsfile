@@ -12,34 +12,45 @@ pipeline {
 
             steps {
 
-                withCredentials([
-                    string(credentialsId: 'vault-role-id', variable: 'ROLE_ID'),
-                    string(credentialsId: 'vault-secret-id', variable: 'SECRET_ID')
-                ]) {
+                sh '''
+                JWT_TOKEN=$(python3 - <<EOF
+import jwt,time
 
-                    sh '''
-                    VAULT_TOKEN=$(vault write -field=token auth/approle/login \
-                        role_id="$ROLE_ID" \
-                        secret_id="$SECRET_ID")
+payload = {
+    "sub": "jenkins",
+    "iat": int(time.time()),
+    "exp": int(time.time()) + 300
+}
 
-                    export VAULT_TOKEN
+with open("/opt/jenkins-jwt/jwt-private.pem") as f:
+    key = f.read()
 
-                    DB_USER=$(vault kv get -field=username secret/db)
-                    DB_PASS=$(vault kv get -field=password secret/db)
-                    DB_HOST=$(vault kv get -field=host secret/db)
-                    DB_NAME=$(vault kv get -field=database secret/db)
+print(jwt.encode(payload,key,algorithm="RS256"))
+EOF
+)
 
-                    export DB_USER
-                    export DB_PASS
-                    export DB_HOST
-                    export DB_NAME
+                VAULT_TOKEN=$(vault write -field=token \
+                    auth/jwt/login \
+                    role="jenkins-jwt" \
+                    jwt="$JWT_TOKEN")
 
-                    sed -i 's/\r$//' deploy.sh
+                export VAULT_TOKEN
 
-                    chmod +x deploy.sh
-                    ./deploy.sh
-                    '''
-                }
+                DB_USER=$(vault kv get -field=username secret/db)
+                DB_PASS=$(vault kv get -field=password secret/db)
+                DB_HOST=$(vault kv get -field=host secret/db)
+                DB_NAME=$(vault kv get -field=database secret/db)
+
+                export DB_USER
+                export DB_PASS
+                export DB_HOST
+                export DB_NAME
+
+                sed -i 's/\r$//' deploy.sh
+
+                chmod +x deploy.sh
+                ./deploy.sh
+                '''
             }
         }
     }
