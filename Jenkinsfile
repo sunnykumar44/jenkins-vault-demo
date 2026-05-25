@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        VAULT_ADDR = 'https://pronteff-vault.com:8200'
+        VAULT_ADDR = 'https://192.168.17.54:8200'
         VAULT_SKIP_VERIFY = 'true'
     }
 
